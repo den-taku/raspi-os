@@ -106,6 +106,7 @@
 //!     - It is implemented in `src/_arch/__arch_name__/cpu/boot.s`.
 //! 2. Once finished with architectural setup, the arch code calls `kernel_init()`.
 
+#![allow(clippy::upper_case_acronyms)]
 #![feature(asm_const)]
 #![feature(format_args_nl)]
 #![feature(panic_info_message)]
@@ -116,6 +117,7 @@
 mod bsp;
 mod console;
 mod cpu;
+mod driver;
 mod panic_wait;
 mod print;
 mod synchronization;
@@ -125,15 +127,50 @@ mod synchronization;
 /// # Safety
 ///
 /// - Only a single core must be active and running this function.
+/// - The init calls in this function must appear in the correct order.
 unsafe fn kernel_init() -> ! {
+    use driver::interface::DriverManager;
+
+    for i in bsp::driver::driver_manager().all_device_drivers().iter() {
+        if let Err(x) = i.init() {
+            panic!("Error loading driver: {}: {}", i.compatible(), x);
+        }
+    }
+    bsp::driver::driver_manager().post_device_driver_init();
+    // println! is usable from here on.
+
+    // Transition from unsafe to safe.
+    kernel_main()
+}
+
+/// The main function running after the early init.
+fn kernel_main() -> ! {
     use console::console;
+    use driver::interface::DriverManager;
 
-    println!("[0] Hello from Rust!");
+    println!(
+        "[0] {} version {}",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION")
+    );
+    println!("[1] Booting on: {}", bsp::board_name());
 
-    println!("[1] I'm DenTaku!");
+    println!("[2] Drivers loaded:");
+    for (i, driver) in bsp::driver::driver_manager()
+        .all_device_drivers()
+        .iter()
+        .enumerate()
+    {
+        println!("      {}. {}", i + 1, driver.compatible());
+    }
 
-    println!("[2] Chars written: {}", console().chars_written());
+    println!("[3] Chars written: {}", console().chars_written());
+    println!("[4] Echoing input now");
 
-    println!("[3] Stopping here.");
-    cpu::wait_forever()
+    // Discard any spurious received characters before going into echo mode.
+    console().clear_rx();
+    loop {
+        let c = console().read_char();
+        console().write_char(c);
+    }
 }
