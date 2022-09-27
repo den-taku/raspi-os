@@ -63,3 +63,9 @@ linker script
 ## 03
 
 `0x3F20_1000`：UARTのbase address
+
+## 04
+
+- `UnsafeCell`：`&T`から`&mut T`を生み出すunsafeな型（`pub fn get(&self) -> *mut T;`などの機能）
+- `Cell`：値への不変参照が存在しない．内部で可変参照をとる．スレッドセーフではない．
+- `RefCell`：オーバーヘッドありで参照，可変参照と取れる．危険な場合はpanicする．
