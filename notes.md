@@ -1,10 +1,12 @@
 # Notes
-# Preparations
+## Preparations
+
+（`rust-toolchain.toml`を追加したので不要かも）
 
 - `add aarch64-unknown-none-softfloat`
 - `rustup component add llvm-tools-preview`
 
-# 00
+## 00
 
 boot flow: `cpu::boot::arch_boot::_start()` in `src/_arch/__arch_name__/cpu/boot.s`
 
@@ -45,3 +47,15 @@ bcm2711-rpi-400.dtb		fixup_cd.dat			start_db.elf
 bcm2711-rpi-cm4.dtb		fixup_db.dat			start_x.elf
 bcm2711-rpi-cm4s.dtb		fixup_x.dat
 ```
+
+## 02
+
+linker script
+- `ENTRY`：entry addressを決める（ref [3.4.1 Setting the Entry Point](https://sourceware.org/binutils/docs-2.38/ld/Entry-Point.html)）
+- `PHDRS`：プログラムヘッダを指定してロードの仕方を決める（ref [3.8 PHDRS Command](https://sourceware.org/binutils/docs-2.38/ld/PHDRS.html)）
+- `SECTIONS`（必須）：メモリ配置を定める（ref [3.6 SECTIONS Command](https://sourceware.org/binutils/docs-2.38/ld/SECTIONS.html)）
+  - `.text`：プログラム
+  - `.rodata`：定数値
+  - `.data`：初期値ありグローバル変数
+  - `.bss`：初期値なし（0で初期化）グローバル変数
+  - `.got`：共有ライブラリ関数
