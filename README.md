@@ -14,3 +14,7 @@ Read [Operating System development tutorials in Rust on the Raspberry Pi](https:
   - `nm`: Inspect the symbols
   - `test`
   - `miniterm`: Read the signals from UART
+
+## My notes
+
+[here](notes.md)

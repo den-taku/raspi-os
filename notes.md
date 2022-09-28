@@ -107,7 +107,47 @@ Device Drivers
     - 値
       - `0b00`：No registor
       - `0b01`：Pull up registor
-      - `0b19`：Pull down registor
+      - `0b10`：Pull down registor
 - Alternative Function Assignments
   - GPIO14::ALT0：TXD0
   - GPIO15::ALT0：RXD0
+
+## `PL011Uart`（ARM UART）
+
+仕様の144ページから
+
+概要
+- PL01 UART
+  - 非同期，FIFOを利用可能
+  - Input: `RXD`（，`nCTS`）
+    - GPIO14, ALT0
+  - Output: `TXD`（，`nRTS`）
+    - GPIO15, ALT0
+- GPUから見たベースアドレスが`0x7E20_1000`→CPUからは`0xFE20_1000`（P.5 Figure1の対応関係より）（UART0）
+  - Data Register（Offset: 0x00）
+    - [7:0]：データ
+    - [11:8]：エラーフラグ
+  - Flag register（Offset: 0x18）
+    - [7]：送信FIFOがEmpty
+    - [5]：送信FIFOがFull
+    - [4]：受信FIFOがEmpty
+    - [3]：Busy（送信中）
+  - Integer Baud rate divisor（Offset: 0x24）
+    - [15:0]：値
+  - Fractional Baud rate divisor（Offset: 0x28）
+    - [5:0]：値
+  - Line Control register（Offset: 0x2c）
+    - [6:5]：ワード長
+      - `0b00`：5bit，`0b01`：6bit，`0b10`：7bit，`0b11`：8bit
+    - [4]：FIFOを有効化
+  - Contrel register（Offset: 0x30）
+    - 設定方法
+      1. [0] := 0
+      2. 送信終了を待つ
+      3. FIFOをflush
+      4. 設定後，[0] := 1
+    - [9]：受信を可能に
+    - [8]：送信を可能に
+    - [0]：UARTを可能に
+  - Interrupt Clear Register（Offset: 0x44）
+    - [10:0]：*IC
