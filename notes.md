@@ -1,6 +1,8 @@
 # Notes
 ## Preparations
 
+- `bundle install --path .vendor/bundle --without development`
+
 （`rust-toolchain.toml`を追加したので不要かも）
 
 - `add aarch64-unknown-none-softfloat`
@@ -112,7 +114,7 @@ Device Drivers
   - GPIO14::ALT0：TXD0
   - GPIO15::ALT0：RXD0
 
-## `PL011Uart`（ARM UART）
+### `PL011Uart`（ARM UART）
 
 仕様の144ページから
 
@@ -151,3 +153,14 @@ Device Drivers
     - [0]：UARTを可能に
   - Interrupt Clear Register（Offset: 0x44）
     - [10:0]：*IC
+
+## 06
+
+chainloader
+1. 自身（`chainloader`）が`0x8_0000`にロードされ実行開始
+2. `chainloader`を`0x200_0000`スタートの場所にコピー
+3. `0x200_0000`スタートのプログラム中の`_start_rust`にジャンプ
+4. `chainloader`はUART経由で`\x03\x03\x03`を送る
+5. `\x03\x03\x03`を受け取った`Miniload`は`kernel`のバイナリを送信し始める
+6. `chainloader`が`kernel`を`0x8_0000`にロード
+7. `0x8_0000`にジャンプして`kernel`を実行する
