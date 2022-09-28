@@ -72,12 +72,42 @@ linker script
 
 ## 05
 
-[tock_registers::fields](https://docs.rs/tock-registers/latest/tock_registers/fields/index.html)
+for my MacOS: `DEV_SERIAL=/dev/tty.usbserial-AU01PR2F make miniterm`
+
+Raspberry Pi 4のプロセッサは`bcm2711`（仕様PDF：[bcm2711/bcm2711-peripherals.pdf](https://datasheets.raspberrypi.com/bcm2711/bcm2711-peripherals.pdf)）
 
 Device Drivers
 - `GPIO`
 - `PL011Uart`
 
+レジスタの読み書きには[tock-registers](https://crates.io/crates/tock-registers)を使用
+
 `src/bsp/raspberrypi/memory.rs` manages memory-mapped I/O register
 
-for my MacOS: `DEV_SERIAL=/dev/tty.usbserial-AU01PR2F make miniterm`
+### `GPIO`
+
+仕様の65ページから
+
+概要
+- GPUから見たベースアドレスが`0x7E20_0000`→CPUからは`0xFE20_0000`（P.5 Figure1の対応関係より）
+- Function Select Regs
+  - GPFSEL1レジスタ（Offset: 0x04）
+    - フィールド
+      - [15:7]：FSEL15
+      - [14:12]：FSEL14
+    - 値
+      - `0b000`：Input
+      - `0b001`：Output
+      - `0b100`：alternate function 0
+- Pin Set & Clear Regs
+  - CPIO_PUP_PDN_CNTRL_REG0レジスタ（Offset: 0xE4）
+    - フィールド
+      - [31:30]：GPIO_PUP_PDN_CTRL15
+      - [29:28]：GPIO_PUP_PDN_CTRL14
+    - 値
+      - `0b00`：No registor
+      - `0b01`：Pull up registor
+      - `0b19`：Pull down registor
+- Alternative Function Assignments
+  - GPIO14::ALT0：TXD0
+  - GPIO15::ALT0：RXD0

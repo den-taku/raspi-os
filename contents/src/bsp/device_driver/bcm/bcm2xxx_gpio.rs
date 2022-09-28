@@ -23,6 +23,8 @@ use tock_registers::{
 // Descriptions taken from
 // - https://github.com/raspberrypi/documentation/files/1888662/BCM2837-ARM-Peripherals.-.Revised.-.V2-1.pdf
 // - https://datasheets.raspberrypi.org/bcm2711/bcm2711-peripherals.pdf
+//
+// p. 67, GPFSEL0 レジスタ
 register_bitfields! {
     u32,
 
