@@ -142,7 +142,7 @@ Device Drivers
     - [6:5]：ワード長
       - `0b00`：5bit，`0b01`：6bit，`0b10`：7bit，`0b11`：8bit
     - [4]：FIFOを有効化
-  - Contrel register（Offset: 0x30）
+  - Control register（Offset: 0x30）
     - 設定方法
       1. [0] := 0
       2. 送信終了を待つ
