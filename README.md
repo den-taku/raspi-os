@@ -15,7 +15,6 @@ Read [Operating System development tutorials in Rust on the Raspberry Pi](https:
   - `test`
   - `miniterm`: Read the signals from UART
   - `chainboot`: Be ready to transmute binary
-  - `qemuasm`
 
 use `BSP=rpi4 make {command}` for Raspi4
 

@@ -164,3 +164,33 @@ chainloader
 5. `\x03\x03\x03`を受け取った`Miniload`は`kernel`のバイナリを送信し始める
 6. `chainloader`が`kernel`を`0x8_0000`にロード
 7. `0x8_0000`にジャンプして`kernel`を実行する
+
+## 07
+
+- `CNTPCT_EL0`：Counter-timer Physical Count register
+- `CNTFRQ_EL0`：Counter-timer Frequency register
+
+```rust
+// asmで ADL_REL x1 ARCH_TIMER_COUNTER_FREQUENCYのようにaddressにアクセスできる
+#[no_mangle]
+static ARCH_TIMER_COUNTER_FREQUENCY: NonZeroU32 = NonZeroU32::MIN;
+```
+
+timerの`read_volatile`は多分書き換え前の値で固定されないため？
+
+`GenericTimerCounterValue`は名前通りカウンタの値，
+すなわち何命令分の時間かを表していそう（クロック数の方が適切かも）
+
+```rust
+// core::time::Duration
+pub struct Duration {
+  secs: u64,
+  nanos: u32
+}
+```
+
+Barrier Instructions（out of orderが好ましくない場合の命令）
+- `DMB`：data memory barrier，これより前のメモリアクセスが全て完了するまではメモリアクセスを行わない
+- `DSB`：data synchronization barrier，これより前のメモリアクセスが全て完了するまでは待機
+- `ISB`：instruction synchronization barrier，Write bufferのパイプラインをフラッシュし命令キャッシュから再フェッチ
+  - `CNTPCT_EL0`を読む前に`ISB`を挟む理由：out of order実行で想定よりずっと前の実行結果がキャッシュに残っていると時刻が不正確になるので，直前でフラッシュしてその後命令を実行し直すようにすることで本当に欲しかった時刻のカウンタの値を読むことができる．`DMB`や`DSB`ではそれ以前のメモリアクセスが完了してしまうとout of orderの対象になってしまうのでこの場合は不適．
