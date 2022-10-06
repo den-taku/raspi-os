@@ -200,3 +200,37 @@ Barrier Instructions（out of orderが好ましくない場合の命令）
 ## 08
 
 JTAGデバッガ [ARM-USB-TINY-H](https://www.olimex.com/Products/ARM/JTAG/ARM-USB-TINY-H/)が手元になかったのでスキップ
+
+## 09
+
+進める前に読むべき資料：[Programmer's Guide for ARMv8-A（pdf）](https://cs140e.sergio.bz/docs/ARMv8-A-Programmer-Guide.pdf)のChapter 3（計9ページ程度）
+
+privilege lebels
+
+| Typically used for | AArch64 | RIST-V | x86|
+| ---- | ---- | ---- | ---- |
+| Userspace applications | EL0 | U/VU | Ring 3|
+| OS Kernel | EL1 | S/VS | Ring 0 |
+| Hypervisor | EL2 | HS | Ring-1|
+| Low-Level Firmware | EL3 | M | |
+
+Normal：
+- Gest OS kernels at level `EL1`
+- Hypervisor runs at `EL2` (always non-secure)
+
+Secure：
+- Firemware runs at boot at lebel `EL0`
+- Trusted OS at lebel `EL1`
+
+例外発生時に自動でモードが切り替わることがあるが，
+当然権限が小さい方にしか移動しない．
+
+- `CurrentEL`：現在のELの値が保存されたレジスタ
+  - [3:2]の値：レジスタとして読んだ値：EL
+    - 0b00：0x0：`EL0`
+    - 0b01：0x4：`EL0`
+    - 0b10：0x8：`EL0`
+    - 0b11：0xC：`EL0`
+- `CNTHCTL`：タイマー関係の設定
+  - `EL1PCEN`：[10]，`1`でtrapされないように設定
+  - `EL1PCTEN`：[10]，`1`でtrapされないように設定
