@@ -1,4 +1,6 @@
 # Notes
+
+[zennにあげたスクラップ](https://zenn.dev/dentaku/scraps/717453137ac6bf)の方が多分良いです．
 ## Preparations
 
 - `bundle install --path .vendor/bundle --without development`
@@ -194,3 +196,7 @@ Barrier Instructions（out of orderが好ましくない場合の命令）
 - `DSB`：data synchronization barrier，これより前のメモリアクセスが全て完了するまでは待機
 - `ISB`：instruction synchronization barrier，Write bufferのパイプラインをフラッシュし命令キャッシュから再フェッチ
   - `CNTPCT_EL0`を読む前に`ISB`を挟む理由：out of order実行で想定よりずっと前の実行結果がキャッシュに残っていると時刻が不正確になるので，直前でフラッシュしてその後命令を実行し直すようにすることで本当に欲しかった時刻のカウンタの値を読むことができる．`DMB`や`DSB`ではそれ以前のメモリアクセスが完了してしまうとout of orderの対象になってしまうのでこの場合は不適．
+
+## 08
+
+JTAGデバッガ [ARM-USB-TINY-H](https://www.olimex.com/Products/ARM/JTAG/ARM-USB-TINY-H/)が手元になかったのでスキップ
